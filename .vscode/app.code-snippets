@@ -1,0 +1,35 @@
+{
+  "Vue Typescript Component Snippet": {
+    "scope": "javascript,typescript",
+    "prefix": "vc",
+    "body": [
+      "import { defineComponent } from 'vue';\n",
+      "const ${1:Name}Component = defineComponent({});\n",
+      "export default ${1:Name}Component;"
+    ],
+    "description": "Makes vue class component."
+  },
+  "Vue HTML Component Snippet": {
+    "scope": "vue",
+    "prefix": "vc",
+    "body": [
+      "<template>",
+      "  <div>${1}</div>",
+      "</template>\n",
+      "<script lang=\"ts\" src=\"./${TM_FILENAME_BASE}.ts\" />\n"
+    ],
+    "description": "Makes vue class component."
+  },
+  "Model": {
+    "scope": "javascript,typescript",
+    "prefix": "md",
+    "body": [
+      "export class ${1:Name}Model {\n  \n",
+      "  constructor(data?: Partial<${1:Name}Model>) {",
+      "    Object.assign(this, data);",
+      "  }",
+      "}"
+    ],
+    "description": "Makes a model class."
+  }
+}

@@ -1,7 +1,7 @@
 import { data } from '@/data';
 import { delay, resolveObjPath } from '@/globals';
 import { AlgoOptionsModel } from '@/models';
-import { SortService } from '@/services';
+import { SearchService, SortService } from '@/services';
 import { defineComponent, onMounted, reactive, ref } from 'vue';
 import { Chart } from 'chart.js';
 
@@ -31,6 +31,7 @@ const N_VALUES = [
 // Fields
 const loading = ref(false);
 const sortSrv = SortService.Instance;
+const searchSrv = SearchService.Instance;
 const algoOps = reactive(new AlgoOptionsModel());
 const results = reactive(data);
 
@@ -45,31 +46,75 @@ const getTime = (path: string) => {
 const generateAscArray = (n: number) => [...Array(n).keys()];
 
 const callAlgo = (arr: Array<number>) => {
+  const { Algo, ValueOfN, Case } = algoOps;
   let t0 = 0;
   let t1 = 0;
-  if (algoOps.Algo === 'Bubble Sort') {
+
+  // Bubble Sort
+  if (Algo === 'Bubble Sort') {
     t0 = performance.now();
     sortSrv.bubbleSort(arr);
     t1 = performance.now();
-  } else if (algoOps.Algo === 'Insertion Sort') {
+  }
+
+  // Insertion Sort
+  else if (Algo === 'Insertion Sort') {
     t0 = performance.now();
     sortSrv.insertionSort(arr);
     t1 = performance.now();
-  } else if (algoOps.Algo === 'Selection Sort') {
+  }
+
+  // Selection Sort
+  else if (Algo === 'Selection Sort') {
     t0 = performance.now();
     sortSrv.selectionSort(arr);
     t1 = performance.now();
-  } else if (algoOps.Algo === 'Merge Sort') {
+  }
+
+  // Merge Sort
+  else if (Algo === 'Merge Sort') {
     t0 = performance.now();
     sortSrv.mergeSort(arr);
     t1 = performance.now();
-  } else if (algoOps.Algo === 'Count Sort') {
+  }
+
+  // Count Sort
+  else if (Algo === 'Count Sort') {
     t0 = performance.now();
-    sortSrv.countSort(arr, 0, +algoOps.ValueOfN!);
+    sortSrv.countSort(arr, 0, +ValueOfN!);
     t1 = performance.now();
-  } else if (algoOps.Algo === 'Quick Sort') {
+  }
+
+  // Quick Sort
+  else if (Algo === 'Quick Sort') {
     t0 = performance.now();
     sortSrv.quickSort(arr, 0, arr.length - 1);
+    t1 = performance.now();
+  }
+
+  // Linear Search
+  else if (Algo === 'Linear Search') {
+    let key = 0;
+    if (Case === 'Worst') {
+      key = +ValueOfN!;
+    } else if (Case === 'Average') {
+      key = Math.floor(Math.random() * +ValueOfN!);
+    }
+    t0 = performance.now();
+    searchSrv.linearSearch(arr, key);
+    t1 = performance.now();
+  }
+
+  // Binary Search
+  else if (Algo === 'Binary Search') {
+    let key = 0;
+    if (Case === 'Worst') {
+      key = +ValueOfN!;
+    } else if (Case === 'Average') {
+      key = Math.floor(Math.random() * +ValueOfN!);
+    }
+    t0 = performance.now();
+    searchSrv.binarySearch(arr, key);
     t1 = performance.now();
   }
 
@@ -98,12 +143,12 @@ const generateResults = async () => {
   const time = callAlgo(arr);
 
   // Assign results
-  const { Algo } = algoOps;
+  const { Algo, ValueOfN, Case } = algoOps;
   results[Algo!] = {
     ...results[Algo!],
-    [+algoOps.ValueOfN!]: {
-      ...(results[Algo!] ? results[Algo!][+algoOps.ValueOfN!] : {}),
-      [algoOps.Case!]: time
+    [+ValueOfN!]: {
+      ...(results[Algo!] ? results[Algo!][+ValueOfN!] : {}),
+      [Case!]: time
     }
   };
 
@@ -112,14 +157,14 @@ const generateResults = async () => {
 };
 
 const updateChart = () => {
-  N_VALUES.forEach(n => {
+  ALGOS.forEach(algo => {
     const chart = (document.getElementById(
-      `chart-${n}-bar`
+      `chart-${algo}-bar`
     ) as HTMLCanvasElement).getContext('2d')!;
     new Chart(chart, {
       type: 'bar',
       data: {
-        labels: ALGOS,
+        labels: N_VALUES,
         datasets: Object.entries({
           Best: 'green',
           Average: 'blue',
@@ -127,8 +172,8 @@ const updateChart = () => {
         }).map(([key, value]) => ({
           label: key,
           backgroundColor: value,
-          data: Object.keys(data).reduce((acc: Array<number>, curr) => {
-            acc.push(+getTime(`${curr}.${n}.${key}`));
+          data: Object.keys(data[algo]).reduce((acc: Array<number>, curr) => {
+            acc.push(+getTime(`${algo}.${curr}.${key}`));
             return acc;
           }, [])
         }))
@@ -136,7 +181,7 @@ const updateChart = () => {
       options: {
         title: {
           display: true,
-          text: `Bar Chart for N = ${n}`
+          text: `Bar Chart for N = ${algo}`
         },
         scales: {
           yAxes: [
@@ -150,32 +195,30 @@ const updateChart = () => {
       }
     });
   });
-  N_VALUES.forEach(n => {
+  ALGOS.forEach(algo => {
     const chart = (document.getElementById(
-      `chart-${n}-line`
+      `chart-${algo}-line`
     ) as HTMLCanvasElement).getContext('2d')!;
     new Chart(chart, {
       type: 'line',
       data: {
-        labels: ALGOS,
-        datasets: Object.entries({
-          Best: 'green',
-          Average: 'blue',
-          Worst: 'red'
-        }).map(([key, value]) => ({
-          label: key,
-          borderColor: value,
-          backgroundColor: 'transparent',
-          data: Object.keys(data).reduce((acc: Array<number>, curr) => {
-            acc.push(+getTime(`${curr}.${n}.${key}`));
-            return acc;
-          }, [])
-        }))
+        labels: N_VALUES,
+        datasets: [
+          {
+            label: 'Worst',
+            borderColor: 'red',
+            backgroundColor: 'transparent',
+            data: Object.keys(data[algo]).reduce((acc: Array<number>, curr) => {
+              acc.push(+getTime(`${algo}.${curr}.Worst`));
+              return acc;
+            }, [])
+          }
+        ]
       },
       options: {
         title: {
           display: true,
-          text: `Line Chart for N = ${n}`
+          text: `Line Chart for N = ${algo}`
         },
         scales: {
           yAxes: [

@@ -1,5 +1,7 @@
 module.exports = {
-  chainWebpack: (config) => {
+  publicPath:
+    process.env.NODE_ENV === 'production' ? '/algo-visualization/' : '/',
+  chainWebpack: config => {
     config.resolve.extensions
       .clear()
       .add('.vue')

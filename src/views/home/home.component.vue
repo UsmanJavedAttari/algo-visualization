@@ -78,13 +78,13 @@
     </table>
   </div>
   <div class="mt-3 row">
-    <div class="col-12 col-md-4" v-for="(n, i) in N_VALUES" :key="i">
-      <canvas :id="`chart-${n}-bar`" />
+    <div class="col-12 col-md-6" v-for="(algo, i) in ALGOS" :key="i">
+      <canvas :id="`chart-${algo}-bar`" />
     </div>
   </div>
   <div class="mt-3 row">
-    <div class="col-12 col-md-4" v-for="(n, i) in N_VALUES" :key="i">
-      <canvas :id="`chart-${n}-line`" />
+    <div class="col-12 col-md-6" v-for="(algo, i) in ALGOS" :key="i">
+      <canvas :id="`chart-${algo}-line`" />
     </div>
   </div>
 </template>

@@ -6,15 +6,10 @@ cache: npm
 
 script: npm run build
 
-os:
-  - 'linux'
-
-dist: xenial
-
 deploy:
   provider: pages
-  strategy: git
-  token: $GITHUB_TOKEN
+  skip_cleanup: true
+  github_token: $GITHUB_TOKEN
   local_dir: dist
   on:
     branch: master

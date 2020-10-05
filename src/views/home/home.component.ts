@@ -179,17 +179,19 @@ const generateResults = async () => {
 
   lineCharts.forEach((chart, i) => {
     const algo = ALGOS[i];
-    chart.data.datasets = [
-      {
-        label: 'Worst',
-        borderColor: 'red',
-        backgroundColor: 'transparent',
-        data: Object.keys(data[algo]).reduce((acc: Array<number>, curr) => {
-          acc.push(+getTime(`${algo}.${curr}.Worst`));
-          return acc;
-        }, [])
-      }
-    ];
+    chart.data.datasets = Object.entries({
+      Best: 'green',
+      Average: 'blue',
+      Worst: 'red'
+    }).map(([key, value]) => ({
+      label: key,
+      borderColor: value,
+      backgroundColor: 'transparent',
+      data: Object.keys(data[algo]).reduce((acc: Array<number>, curr) => {
+        acc.push(+getTime(`${algo}.${curr}.${key}`));
+        return acc;
+      }, [])
+    }));
     chart.update();
   });
 
@@ -297,7 +299,7 @@ const updateChart = () => {
   });
 };
 
-const exportCSV = () => {
+const exportCSV = async () => {
   exportCSVSrv.export(results);
 };
 

@@ -35,7 +35,7 @@ export class ExportCSV {
           'href',
           'data:text/csv;charset=utf-8,' + encodeURI(data)
         );
-        link.setAttribute('download', 'algo-visualizations.xlsx');
+        link.setAttribute('download', 'algo-visualizations.csv');
         document.body.appendChild(link);
         link.click();
         // document.body.removeChild(link);

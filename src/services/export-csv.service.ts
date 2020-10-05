@@ -14,6 +14,7 @@ export class ExportCSV {
 
   private LoaderService = LoaderService.Instance;
 
+  // Downloads the CSV file.
   public async export(obj: AnyObject) {
     this.LoaderService.showFullScreenLoader();
     Axios.request({

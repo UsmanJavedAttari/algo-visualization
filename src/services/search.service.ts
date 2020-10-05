@@ -23,7 +23,6 @@ export class SearchService {
     while (start <= end) {
       // Find the mid index
       const mid = Math.floor((start + end) / 2);
-
       // If element is present at mid, return True
       if (inputArr[mid] === key) return true;
       // Else look in left or right half accordingly

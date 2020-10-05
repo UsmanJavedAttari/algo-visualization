@@ -13,13 +13,14 @@ export class ExportCSV {
   public export(obj: AnyObject) {
     const json = JSON.stringify(obj);
     fetch('https://json-csv.com/api/getcsv', {
-      mode: 'no-cors',
+      // mode: 'no-cors',
       method: 'POST',
-      body: JSON.stringify({
+      body: new URLSearchParams({
         email: 'usman.attari002@gmail.com',
         json
       }),
       headers: {
+        'Access-Control-Allow-Origin': 'http://localhost:8080',
         'Content-type': 'application/x-www-form-urlencoded'
       }
     })
@@ -28,6 +29,9 @@ export class ExportCSV {
       })
       .then(data => {
         console.log(data);
+      })
+      .catch(err => {
+        console.log(err);
       });
   }
 }

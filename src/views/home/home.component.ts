@@ -1,7 +1,7 @@
 import { data } from '@/data';
 import { AnyObject, delay, resolveObjPath } from '@/globals';
 import { AlgoOptionsModel } from '@/models';
-import { SearchService, SortService } from '@/services';
+import { ExportCSV, SearchService, SortService } from '@/services';
 import { defineComponent, onMounted, reactive, ref } from 'vue';
 import { Chart } from 'chart.js';
 import { useRoute } from 'vue-router';
@@ -29,10 +29,13 @@ const N_VALUES = [
   '1000000'
 ];
 
-// Fields
-const loading = ref(false);
+// Services
 const sortSrv = SortService.Instance;
 const searchSrv = SearchService.Instance;
+const exportCSVSrv = ExportCSV.Instance;
+
+// Fields
+const loading = ref(false);
 const algoOps = reactive(new AlgoOptionsModel());
 const barCharts: Array<Chart> = [];
 const lineCharts: Array<Chart> = [];
@@ -244,20 +247,35 @@ const updateChart = () => {
         type: 'line',
         data: {
           labels: N_VALUES,
-          datasets: [
-            {
-              label: 'Worst',
-              borderColor: 'red',
-              backgroundColor: 'transparent',
-              data: Object.keys(data[algo]).reduce(
-                (acc: Array<number>, curr) => {
-                  acc.push(+getTime(`${algo}.${curr}.Worst`));
-                  return acc;
-                },
-                []
-              )
-            }
-          ]
+          datasets: Object.entries({
+            Best: 'green',
+            Average: 'blue',
+            Worst: 'red'
+          }).map(([key, value]) => ({
+            label: key,
+            borderColor: value,
+            backgroundColor: 'transparent',
+            data: Object.keys(data[algo]).reduce((acc: Array<number>, curr) => {
+              acc.push(+getTime(`${algo}.${curr}.${key}`));
+              return acc;
+            }, [])
+          }))
+          // datasets:
+
+          // [
+          //   {
+          //     label: 'Worst',
+          //     borderColor: 'red',
+          //     backgroundColor: 'transparent',
+          //     data: Object.keys(data[algo]).reduce(
+          //       (acc: Array<number>, curr) => {
+          //         acc.push(+getTime(`${algo}.${curr}.Worst`));
+          //         return acc;
+          //       },
+          //       []
+          //     )
+          //   }
+          // ]
         },
         options: {
           title: {
@@ -279,6 +297,10 @@ const updateChart = () => {
   });
 };
 
+const exportCSV = () => {
+  exportCSVSrv.export(results);
+};
+
 // Component
 const HomeComponent = defineComponent({
   setup() {
@@ -297,7 +319,8 @@ const HomeComponent = defineComponent({
       algoOps,
       results,
       getTime,
-      generateResults
+      generateResults,
+      exportCSV
     };
   }
 });

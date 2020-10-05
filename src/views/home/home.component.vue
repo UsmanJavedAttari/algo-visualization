@@ -37,6 +37,13 @@
           Generate Results
           <template #loading>Generating</template>
         </base-btn>
+        <base-btn
+          class="btn btn-secondary btn-sm ml-3"
+          type="button"
+          @click="exportCSV"
+        >
+          Export CSV
+        </base-btn>
       </div>
     </div>
   </form>

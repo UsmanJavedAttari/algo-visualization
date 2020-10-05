@@ -1,4 +1,7 @@
 module.exports = {
+  devServer: {
+    proxy: 'https://json-csv.com/api'
+  },
   publicPath:
     process.env.NODE_ENV === 'production' ? '/algo-visualization/' : '/',
   chainWebpack: config => {

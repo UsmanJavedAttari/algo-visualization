@@ -1,6 +1,6 @@
 module.exports = {
   publicPath:
-    process.env.NODE_ENV === 'production' ? '/algo-visualization/' : '/',
+    process.env.NODE_ENV === 'production' ? '/algo-visualization-prod/' : '/',
   chainWebpack: config => {
     config.resolve.extensions
       .clear()

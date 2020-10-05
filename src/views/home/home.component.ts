@@ -140,6 +140,7 @@ const generateResults = async () => {
     );
   }
 
+  // Call the algo
   const time = callAlgo(arr);
 
   // Assign results

@@ -1,9 +1,10 @@
 import { data } from '@/data';
-import { delay, resolveObjPath } from '@/globals';
+import { AnyObject, delay, resolveObjPath } from '@/globals';
 import { AlgoOptionsModel } from '@/models';
 import { SearchService, SortService } from '@/services';
 import { defineComponent, onMounted, reactive, ref } from 'vue';
 import { Chart } from 'chart.js';
+import { useRoute } from 'vue-router';
 
 // Constants
 const ALGOS = [
@@ -33,7 +34,9 @@ const loading = ref(false);
 const sortSrv = SortService.Instance;
 const searchSrv = SearchService.Instance;
 const algoOps = reactive(new AlgoOptionsModel());
-const results = reactive(data);
+const barCharts: Array<Chart> = [];
+const lineCharts: Array<Chart> = [];
+let results = reactive({} as AnyObject);
 
 // Methods
 const getTime = (path: string) => {
@@ -153,6 +156,40 @@ const generateResults = async () => {
     }
   };
 
+  // Update the charts
+  barCharts.forEach((chart, i) => {
+    const algo = ALGOS[i];
+    chart.data.datasets = Object.entries({
+      Best: 'green',
+      Average: 'blue',
+      Worst: 'red'
+    }).map(([key, value]) => ({
+      label: key,
+      backgroundColor: value,
+      data: Object.keys(data[algo]).reduce((acc: Array<number>, curr) => {
+        acc.push(+getTime(`${algo}.${curr}.${key}`));
+        return acc;
+      }, [])
+    }));
+    chart.update();
+  });
+
+  lineCharts.forEach((chart, i) => {
+    const algo = ALGOS[i];
+    chart.data.datasets = [
+      {
+        label: 'Worst',
+        borderColor: 'red',
+        backgroundColor: 'transparent',
+        data: Object.keys(data[algo]).reduce((acc: Array<number>, curr) => {
+          acc.push(+getTime(`${algo}.${curr}.Worst`));
+          return acc;
+        }, [])
+      }
+    ];
+    chart.update();
+  });
+
   // Hide loading
   loading.value = false;
 };
@@ -162,88 +199,100 @@ const updateChart = () => {
     const chart = (document.getElementById(
       `chart-${algo}-bar`
     ) as HTMLCanvasElement).getContext('2d')!;
-    new Chart(chart, {
-      type: 'bar',
-      data: {
-        labels: N_VALUES,
-        datasets: Object.entries({
-          Best: 'green',
-          Average: 'blue',
-          Worst: 'red'
-        }).map(([key, value]) => ({
-          label: key,
-          backgroundColor: value,
-          data: Object.keys(data[algo]).reduce((acc: Array<number>, curr) => {
-            acc.push(+getTime(`${algo}.${curr}.${key}`));
-            return acc;
-          }, [])
-        }))
-      },
-      options: {
-        title: {
-          display: true,
-          text: `Bar Chart for N = ${algo}`
+    barCharts.push(
+      new Chart(chart, {
+        type: 'bar',
+        data: {
+          labels: N_VALUES,
+          datasets: Object.entries({
+            Best: 'green',
+            Average: 'blue',
+            Worst: 'red'
+          }).map(([key, value]) => ({
+            label: key,
+            backgroundColor: value,
+            data: Object.keys(data[algo]).reduce((acc: Array<number>, curr) => {
+              acc.push(+getTime(`${algo}.${curr}.${key}`));
+              return acc;
+            }, [])
+          }))
         },
-        scales: {
-          yAxes: [
-            {
-              ticks: {
-                min: 0
+        options: {
+          title: {
+            display: true,
+            text: `Bar Chart for N = ${algo}`
+          },
+          scales: {
+            yAxes: [
+              {
+                ticks: {
+                  min: 0
+                }
               }
-            }
-          ]
+            ]
+          }
         }
-      }
-    });
+      })
+    );
   });
   ALGOS.forEach(algo => {
     const chart = (document.getElementById(
       `chart-${algo}-line`
     ) as HTMLCanvasElement).getContext('2d')!;
-    new Chart(chart, {
-      type: 'line',
-      data: {
-        labels: N_VALUES,
-        datasets: [
-          {
-            label: 'Worst',
-            borderColor: 'red',
-            backgroundColor: 'transparent',
-            data: Object.keys(data[algo]).reduce((acc: Array<number>, curr) => {
-              acc.push(+getTime(`${algo}.${curr}.Worst`));
-              return acc;
-            }, [])
-          }
-        ]
-      },
-      options: {
-        title: {
-          display: true,
-          text: `Line Chart for N = ${algo}`
-        },
-        scales: {
-          yAxes: [
+    lineCharts.push(
+      new Chart(chart, {
+        type: 'line',
+        data: {
+          labels: N_VALUES,
+          datasets: [
             {
-              ticks: {
-                min: 0
-              }
+              label: 'Worst',
+              borderColor: 'red',
+              backgroundColor: 'transparent',
+              data: Object.keys(data[algo]).reduce(
+                (acc: Array<number>, curr) => {
+                  acc.push(+getTime(`${algo}.${curr}.Worst`));
+                  return acc;
+                },
+                []
+              )
             }
           ]
+        },
+        options: {
+          title: {
+            display: true,
+            text: `Line Chart for N = ${algo}`
+          },
+          scales: {
+            yAxes: [
+              {
+                ticks: {
+                  min: 0
+                }
+              }
+            ]
+          }
         }
-      }
-    });
+      })
+    );
   });
 };
 
 // Component
 const HomeComponent = defineComponent({
   setup() {
+    const route = useRoute();
+    results = route.query.dummyData ? data : {};
     onMounted(() => {
-      updateChart();
+      if (route.query.graphs) {
+        updateChart();
+      }
     });
     return {
       ALGOS,
       N_VALUES,
+      route,
       loading,
       algoOps,
       results,

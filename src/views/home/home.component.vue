@@ -77,7 +77,7 @@
       </tbody>
     </table>
   </div>
-  <div class="mt-3 row">
+  <div class="mt-3 row" v-if="!!route.query.graphs">
     <div class="col-12 col-md-6" v-for="(algo, i) in ALGOS" :key="i">
       <canvas :id="`chart-${algo}-bar`" />
     </div>

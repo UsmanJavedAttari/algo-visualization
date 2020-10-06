@@ -127,7 +127,7 @@ const callAlgo = (arr: Array<number>) => {
   console.log(
     `Array of length ${ValueOfN} on ${Case} case of ${Algo} took ${(
       t1 - t0
-    ).toFixed(5)}milliseconds to run.`
+    ).toFixed(5)} milliseconds to run.`
   );
 
   return t1 - t0;

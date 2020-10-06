@@ -124,6 +124,12 @@ const callAlgo = (arr: Array<number>) => {
     t1 = performance.now();
   }
 
+  console.log(
+    `Array of length ${ValueOfN} on ${Case} case of ${Algo} took ${(
+      t1 - t0
+    ).toFixed(5)}milliseconds to run.`
+  );
+
   return t1 - t0;
 };
 
@@ -262,22 +268,6 @@ const updateChart = () => {
               return acc;
             }, [])
           }))
-          // datasets:
-
-          // [
-          //   {
-          //     label: 'Worst',
-          //     borderColor: 'red',
-          //     backgroundColor: 'transparent',
-          //     data: Object.keys(data[algo]).reduce(
-          //       (acc: Array<number>, curr) => {
-          //         acc.push(+getTime(`${algo}.${curr}.Worst`));
-          //         return acc;
-          //       },
-          //       []
-          //     )
-          //   }
-          // ]
         },
         options: {
           title: {

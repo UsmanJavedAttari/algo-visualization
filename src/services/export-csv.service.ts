@@ -15,7 +15,7 @@ export class ExportCSV {
   private LoaderService = LoaderService.Instance;
 
   // Downloads the CSV file.
-  public async export(obj: AnyObject) {
+  public export(obj: AnyObject) {
     this.LoaderService.showFullScreenLoader();
     Axios.request({
       url:
@@ -29,7 +29,7 @@ export class ExportCSV {
         'content-type': 'application/x-www-form-urlencoded'
       }
     })
-      .then(({ data }) => {
+      .then(async ({ data }) => {
         const link = document.createElement('a');
         link.setAttribute(
           'href',
@@ -37,8 +37,8 @@ export class ExportCSV {
         );
         link.setAttribute('download', 'algo-visualizations.csv');
         document.body.appendChild(link);
+        await delay(3000);
         link.click();
-        // document.body.removeChild(link);
         this.LoaderService.hideFullScreenLoader();
       })
       .catch(e => {
@@ -46,6 +46,5 @@ export class ExportCSV {
         alert('Something went wrong! Please try again later.');
         console.log(e);
       });
-    await delay(3000);
   }
 }
